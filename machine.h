@@ -9,17 +9,20 @@
 #include "configs.h"
 
 class machine {
+public:
     machine();
     ~machine();
+    void loadROM(std::string name);
 
 private:
     uint8_t  memory[MEMSIZE];            // RAM memory
     uint16_t stack[16];                  // Stack memory
-
     uint8_t  v[16];                      // 8-bit registers
     uint16_t I;                          // 16-bit register
     uint16_t PC;                         // Program Counter
     uint8_t  SP;                         // Stack Pointer
+
+    void init();
 
 
     /**
@@ -38,6 +41,7 @@ private:
             - 16-bit, Program Counter (PC). Stores the currently executing address.
             - 8-bit, Stack Pointer (SP). It is used to point to the topmost level of the stack.
      */
+
 
 
 };
