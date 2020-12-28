@@ -1,14 +1,21 @@
-CC = g++
-CFLAGS = -g -O0
+TARGET = chip8
 
-all: chip8
+SRCS  = $(shell find . -type f -name "*.cpp")
+HEADS = $(shell find . -type f -name "*.h")
+OBJS  = $(SRCS:.cpp=.o)
 
-chip8: main.o machine.o
-	$(CC) -o chip8 main.o machine.o
+CXX = g++
+CXXFLAGS = -g -O0 -std=c++17
 
-main.o: main.cpp machine.h
+all: $(TARGET)
 
-machine.o: machine.cpp machine.h configs.h
+$(TARGET): $(OBJS) $(HEADS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
+
+$(OBJS): $(SRCS) $(HEADS)
+
+run: all
+	@./$(TARGET)
 
 clean:
-	rm chip8 *.o 
+	rm $(TARGET) $(OBJS)

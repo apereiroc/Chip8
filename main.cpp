@@ -1,14 +1,15 @@
 #include <iostream>
 #include "machine.h"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
+int main(const int argc, const char* argv[]) {
+
+    std::cout << "Hello, from main()!" << std::endl;
 
     machine cpu = machine();
 
-    cpu.loadROM("PONG");
+    //cpu.loadROM("PONG");
 
-    std::cout << "Goodbye, World!" << std::endl;
+    std::cout << "Goodbye, from main()!" << std::endl;
 
     return 0;
 }

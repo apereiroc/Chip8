@@ -6,23 +6,24 @@
 #define CHIP8_MACHINE_H
 
 #include <cstdint>
+#include <vector>
 #include "configs.h"
 
 class machine {
 public:
     machine();
     ~machine();
-    void loadROM(std::string name);
+    void loadROM(const char* path_to_file);
 
 private:
-    uint8_t  memory[MEMSIZE];            // RAM memory
-    uint16_t stack[16];                  // Stack memory
-    uint8_t  v[16];                      // 8-bit registers
-    uint16_t I;                          // 16-bit register
-    uint16_t PC;                         // Program Counter
-    uint8_t  SP;                         // Stack Pointer
+    std::vector<i8>  memory;   // RAM memory
+    std::vector<i16> stack;    // Stack memory
+    std::vector<i8>  v;        // 8-bit registers
+    i16 I;                           // 16-bit register
+    i16 PC;                          // Program Counter
+    i8  SP;                          // Stack Pointer
 
-    void init();
+    void reset();
 
 
     /**
@@ -41,8 +42,6 @@ private:
             - 16-bit, Program Counter (PC). Stores the currently executing address.
             - 8-bit, Stack Pointer (SP). It is used to point to the topmost level of the stack.
      */
-
-
 
 };
 
