@@ -50,7 +50,7 @@ void machine::_loadROM(const char* path_to_file) {
     // First it's interesting to check if the file exists
     bool exists = std::filesystem::exists(path_to_file);
     if (not exists) {
-        std::cout << "The path or the file that you have passed does not exist! Exiting..." << std::endl;
+        std::cout << "The path or the file that gyou have passed does not exist! Exiting..." << std::endl;
         exit(1);
     }
 
@@ -64,9 +64,11 @@ void machine::_loadROM(const char* path_to_file) {
         std::cout << "The file is not good! Exiting..." << std::endl;
         exit(1);
     }
-    size = file.tellg();                                        // Read how many bytes until here
-    file.seekg(0, std::ios::beg);                      // Go to the beginning again
-    file.read((char*)(memory.data()), size);
+    size = file.tellg();                                                        // Read how many bytes until here
+    file.seekg(0, std::ios::beg);                                      // Go to the beginning again
+
+    // file.read(reinterpret_cast<char *>(memory.data()), size);
+    file.read( reinterpret_cast<char *> ( &memory[START_PC] ), size ); // Dump bytes to memory
 
     file.close();
 }
