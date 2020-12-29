@@ -68,7 +68,8 @@ void machine::_loadROM(const char* path_to_file) {
     file.seekg(0, std::ios::beg);                                      // Go to the beginning again
 
     // file.read(reinterpret_cast<char *>(memory.data()), size);
-    file.read( reinterpret_cast<char *> ( &memory[START_PC] ), size ); // Dump bytes to memory
+    file.read( reinterpret_cast<char *> ( &memory[START_PC] ), size ); // Dump bytes to memory, starting from where
+                                                                          // PC points to
 
     file.close();
 }

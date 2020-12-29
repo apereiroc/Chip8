@@ -17,13 +17,13 @@ public:
 
 
 private:
-    std::vector<i8>  memory;   // RAM memory
-    std::vector<i16> stack;    // Stack memory
-    std::vector<i8>  v;        // 8-bit registers
+    std::vector<i8>  memory;         // RAM memory
+    std::vector<i16> stack;          // Stack memory
+    std::vector<i8>  v;              // 8-bit registers
     i16 I;                           // 16-bit register
     i16 PC;                          // Program Counter
     i8  SP;                          // Stack Pointer
-    const char* _file;
+    const char* _file;               // Program file to be loaded
 
     [[maybe_unused]] void _reset();
     void _loadROM(const char* path_to_file);
