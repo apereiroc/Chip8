@@ -3,13 +3,11 @@
 
 int main(const int argc, const char* argv[]) {
 
-    std::cout << "Hello, from main()!" << std::endl;
+    const char* myGame = "PONG";
 
-    machine cpu = machine();
+    machine cpu = machine(myGame);
 
-    //cpu.loadROM("PONG");
-
-    std::cout << "Goodbye, from main()!" << std::endl;
+    cpu.test();
 
     return 0;
 }

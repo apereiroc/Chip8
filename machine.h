@@ -11,19 +11,23 @@
 
 class machine {
 public:
-    machine();
+    explicit machine(const char* path_to_file);
     ~machine();
-    void loadROM(const char* path_to_file);
+    void test();
+
 
 private:
-    std::vector<i8>  memory;   // RAM memory
-    std::vector<i16> stack;    // Stack memory
-    std::vector<i8>  v;        // 8-bit registers
+    std::vector<i8>  memory;         // RAM memory
+    std::vector<i16> stack;          // Stack memory
+    std::vector<i8>  v;              // 8-bit registers
     i16 I;                           // 16-bit register
     i16 PC;                          // Program Counter
     i8  SP;                          // Stack Pointer
+    const char* _file;               // Program file to be loaded
 
-    void reset();
+    [[maybe_unused]] void _reset();
+    void _loadROM(const char* path_to_file);
+    void _readInstruction(i16 opcode);
 
 
     /**
