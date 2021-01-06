@@ -1,13 +1,15 @@
 Hello! Welcome to the **CHIP-8** emulator. This code tries to emulate a CHIP-8 interpreter, with which it will be 
 possible to play games compiled for this architecture.
 
-### **The software is not ready yet!**
+
+<span style="color:red">**The software is not ready yet!**</span>.
+
 ### **Current status**: 
 - [ ] Add sound
 - [ ] Games can be played
 - [ ] Add a keyboard
 - [ ] Construct a screen
-- [ ] Process the intructions
+- [ ] Process the instructions
 - [ ] Separate the instructions
 - [x] Read ROMs into memory.
 - [x] Class structure
