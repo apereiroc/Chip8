@@ -5,32 +5,7 @@
 #ifndef CHIP8_MACHINE_H
 #define CHIP8_MACHINE_H
 
-#include <cstdint>
-#include <vector>
-#include "configs.h"
-
-class machine {
-public:
-    explicit machine(const char* path_to_file);
-    ~machine();
-    void test();
-
-
-private:
-    std::vector<i8>  memory;         // RAM memory
-    std::vector<i16> stack;          // Stack memory
-    std::vector<i8>  v;              // 8-bit registers
-    i16 I;                           // 16-bit register
-    i16 PC;                          // Program Counter
-    i8  SP;                          // Stack Pointer
-    const char* _file;               // Program file to be loaded
-
-    [[maybe_unused]] void _reset();
-    void _loadROM(const char* path_to_file);
-    void _readInstruction(i16 opcode);
-
-
-    /**
+/**
      CHIP-8 specifications:
         * Memory:
             - RAM memory: it has 4 kB (4096 bytes) of RAM, from location 0x000 (0) to 0xFFF (4095).
@@ -47,6 +22,28 @@ private:
             - 8-bit, Stack Pointer (SP). It is used to point to the topmost level of the stack.
      */
 
+#include <cstdint>
+#include <vector>
+#include "configs.h"
+
+class machine {
+public:
+    explicit machine(const char* path_to_file);
+    ~machine();
+    void test();
+
+private:
+    std::vector<i8>  memory;         // RAM memory
+    std::vector<i16> stack;          // Stack memory
+    std::vector<i8>  v;              // 8-bit registers
+    i16 I;                           // 16-bit register
+    i16 PC;                          // Program Counter
+    i8  SP;                          // Stack Pointer
+    const char* _file;               // Program file to be loaded
+
+    [[maybe_unused]] void _reset();
+    void _loadROM(const char* path_to_file);
+    static void _processInstruction(i16 &opcode);
 };
 
 
