@@ -2,4 +2,5 @@
 cmake-build-debug
 PONG
 *.o
+.DS_Store
 chip8
