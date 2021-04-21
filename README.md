@@ -8,9 +8,10 @@ possible to play games compiled for this architecture.
 - [ ] Add sound
 - [ ] Games can be played
 - [ ] Add a keyboard
+- [ ] Add a timer
 - [ ] Construct a screen
 - [ ] Process the instructions
-- [ ] Separate the instructions
+- [x] Separate the instructions
 - [x] Read ROMs into memory.
 - [x] Class structure
 
