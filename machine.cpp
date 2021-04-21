@@ -6,62 +6,84 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
+#include <ctime>
+#include <filesystem>
 #include "machine.h"
+#include "screen.h"
 
 machine::machine(const char* path_to_file)
-: memory(MEMSIZE), stack(16), v(16), _file(path_to_file)
+: _file(path_to_file)
+  
 {
     /** CONSTRUCTOR
-     * Initialises the registers. Note that PC points to 512, because memory positions 0..512  are reserved
+     * Initialises all the stuff. Note that PC points to 512, because memory positions 0..511 are reserved
      */
 
     std::cout << "Hi" << std::endl;
+
+    memory.fill(0);
+    V.fill(0);
+    stack.fill(0);
     I  = START;
     PC = START;
     SP = 0;
 
+    // Initialises random number generator
+    std::srand(std::time(nullptr));
+
+    // Copy sprites to the interpreter area
+    std::copy(std::begin(sprites), std::end(sprites), std::begin(memory));
 
 }
 
-machine::~machine() {
+machine::~machine()
+{
+
     std::cout << "Bye" << std::endl;
 }
 
-void machine::test() {
+void machine::test()
+{
     this->_loadROM(this->_file);
     
-    unsigned int microsecond = 1000000;
+    //this->screen.init();
+
+    const unsigned int second = 1000000;
 
     while(true)
     {
 
-        I = ( memory[PC] << 8 ) | memory[PC+1];
+         I = ( memory[PC] << 8 ) | memory[PC+1];
 
-        _processInstruction(I);
+         _processInstruction(I);
 
-        PC += 2;
+         PC += 2;
 
-        // Sleep 3 seconds;
-        usleep(3 * microsecond);
-    }
+         // Sleep 3 seconds;
+         usleep(1 * second);
+     }
 
 }
 
-
-[[maybe_unused]] void machine::_reset() {
+/**
+[[maybe_unused]] void machine::_reset()
+{
 
     std::fill(this->memory.begin(), this->memory.end(), 0);
     std::fill(this->stack.begin(),  this->stack.end(),  0);
-    std::fill(this->v.begin(),      this->v.end(),      0);
+    std::fill(this->V.begin(),      this->V.end(),      0);
     I  = START;
     PC = START;
     SP = 0;
-}
 
-void machine::_loadROM(const char* path_to_file) {
+}
+*/
+
+void machine::_loadROM(const char* path_to_file)
+{
 
     /**
-     * Load the ROM file to memory
+     * Load the ROM file into memory
      */
 
     // First it's interesting to check if the file exists
@@ -88,7 +110,8 @@ void machine::_loadROM(const char* path_to_file) {
     file.close();
 }
 
-void machine::_processInstruction(i16& opcode) {
+void machine::_processInstruction(const i16& opcode)
+{
     /**
 
     b16 b15 b14 b13 b12 b11 b10 b9 b8 b7 b6 b5 b4 b3 b2 b1
@@ -123,47 +146,85 @@ void machine::_processInstruction(i16& opcode) {
                     break;
                 case 0xEE:
                     std::cout << "RET (return) from subroutine" << std::endl;
+                    try{
+                        if (SP > 0){
+                            PC = stack[SP];
+                            SP--;
+                        } else {
+                            throw (SP);
+                        }
+                    } catch (int SP){
+                        std::cout << "Stack underflow!" << std::endl;
+                        std::cout << "SP = " << SP << std::endl;
+                    }
                     break;
                 default:
                     std::cout << "No match at switch(f == 0)! Check it" << std::endl;
+                    std::cout << "Opcode: " << std::hex << opcode << std::endl;
                     break;
             }
             break;
         case 1:
             std::cout << "JP addr (jump to nnn)" << std::endl;
+            PC = nnn;
             break;
         case 2:
             std::cout << "CALL addr (call subroutine at nnn)" << std::endl;
+            try{
+                if (SP < 16){
+                    stack[SP] = PC;
+                    SP++;
+                    PC = nnn;
+                } else {
+                    throw (SP);
+                }
+            } catch (int SP){
+                std::cout << "Stack overflow!" << std::endl;
+                std::cout << "SP = " << SP << std::endl;
+            }
+            
             break;
         case 3:
             std::cout << "SE Vx, byte (skip next instruction if Vx = kk)" << std::endl;
+            if (V[x] == kk)
+                PC += 2;
             break;
         case 4:
             std::cout << "SNE Vx, byte (skip next instruction if Vx != kk)" << std::endl;
+            if (V[x] != kk)
+                PC += 2;
             break;
         case 5:
             std::cout << "SE Vx,Vy (skip next instruction if Vx = Vy)" << std::endl;
+            if (V[x] == V[y])
+                PC += 2;
             break;
         case 6:
             std::cout << "LD Vx, byte (set Vx = kk)" << std::endl;
+            V[x] = kk;
             break;
         case 7:
             std::cout << "ADD Vx, byte (set Vx = Vx + kk)" << std::endl;
+            V[x] += kk;
             break;
         case 8:
             switch(n)
             {
                 case 0:
                     std::cout << "LD Vx,Vy (set Vx = Vy)" << std::endl;
+                    V[x] = V[y];
                     break;
                 case 1:
                     std::cout << "OR Vx,Vy (set Vx = Vx | Vy)" << std::endl;
+                    V[x] |= V[y];
                     break;
                 case 2:
                     std::cout << "AND Vx,Vy (set Vx = Vx & Vy)" << std::endl;
+                    V[x] &= V[y];
                     break;
                 case 3:
                     std::cout << "XOR Vx,Vy (set Vx = Vx ^ Vy)" << std::endl;
+                    V[x] ^= V[y];
                     break;
                 case 4:
                     std::cout << "ADD Vx,Vy with carry (set Vx = Vx+Vy, VF = carry)" << std::endl;
@@ -171,6 +232,8 @@ void machine::_processInstruction(i16& opcode) {
                      * The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. 
                      * Only the lowest 8 bits of the result are kept, and stored in Vx.
                      */
+                    V[x] += V[y];
+                    V[0xF] = V[x] > (V[x] + V[y]);
                     break;
                 case 5:
                     std::cout << "SUB Vx,Vy (set Vx = Vx - Vy, set VF = NOT borrow)" << std::endl;
@@ -178,6 +241,8 @@ void machine::_processInstruction(i16& opcode) {
                      * If Vx > Vy, then VF is set to 1, otherwise 0.
                      * Then Vy is subtracted from Vx, and the results stored in Vx.
                      */
+                    V[0xF] = V[x] > V[y];
+                    V[x] -= V[y];
                     break;
                 case 6:
                     std::cout << "SHR Vx {, Vy} (set Vx = Vx SHR 1)" << std::endl;
@@ -185,6 +250,8 @@ void machine::_processInstruction(i16& opcode) {
                      * If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0
                      * Then Vx is divided by 2.
                      */
+                    V[0xF] = V[x] & 0x1;
+                    V[x] >>= 1;
                     break;
                 case 7:
                     std::cout << "SUBN Vx, Vy (Set Vx = Vy - Vx, set VF = NOT borrow)" << std::endl;
@@ -192,6 +259,8 @@ void machine::_processInstruction(i16& opcode) {
                      * If Vy > Vx, then VF is set to 1, otherwise 0.
                      * Then Vx is subtracted from Vy, and the results stored in Vx.
                      */
+                    V[0xF] = V[y] > V[x];
+                    V[x] = V[y] - V[x];
                     break;
                 case 8:
                     std::cout << "SHL Vx {, Vy} (set Vx = Vx SHL 1)" << std::endl;
@@ -199,27 +268,40 @@ void machine::_processInstruction(i16& opcode) {
                      * If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0
                      * Then Vx is multiplied by 2.
                      */
+                    V[0xF] = ((V[x] & 0x80) != 0);
+                    V[x] <<= 1;
                     break;
                 default:
                     std::cout << "No match at switch(f == 8)! Check it" << std::endl;
+                    std::cout << "Opcode: " << std::hex << opcode << std::endl;
                     break;
             }
             break;
         case 9:
             std::cout << "SNE Vx, Vy (skip next instruction if Vx != Vy)" << std::endl;
+            if (V[x] != V[y])
+                PC += 2;
             break;
         case 0xA:
             std::cout << "LD I, addr (set I = nnn)" << std::endl;
+            I = nnn;
             break;
         case 0xB:
             std::cout << "JP V0, addr (jump to location nnn+V0)" << std::endl;
             /* Para cando implementes isto:
              * Entendo que é PC = nnn+V0
              */
+            PC = nnn+V[0];
             break;
         case 0xC:
+        {
             std::cout << "RND Vx, byte (set Vx = random byte AND kk)" << std::endl;
+            // To generate from 0 to 255, use rand() % 256
+            const i8 rnd_byte = std::rand() % 256;
+            V[x] = rnd_byte & kk;
             break;
+        } // rnd_byte destroyed here    
+
         case 0xD:
             std::cout << "DRW Vx, Vy, nibble (display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.)" << std::endl;
             break;
@@ -234,6 +316,7 @@ void machine::_processInstruction(i16& opcode) {
                     break;
                 default:
                     std::cout << "No match at switch(f == E)! Check it" << std::endl;
+                    std::cout << "Opcode: " << std::hex << opcode << std::endl;
                     break;
             }
             break;
@@ -254,6 +337,7 @@ void machine::_processInstruction(i16& opcode) {
                     break;
                 case 0x1E:
                     std::cout << "ADD I, Vx (set I = I + Vx)" << std::endl;
+                    I += V[x];
                     break;
                 case 0x29:
                     std::cout << "LD F, Vx (set I = location of sprite for digit Vx)" << std::endl;
@@ -269,35 +353,14 @@ void machine::_processInstruction(i16& opcode) {
                     break;
                 default:
                     std::cout << "No match at switch(f == F)! Check it" << std::endl;
+                    std::cout << "Opcode: " << std::hex << opcode << std::endl;
                     break;
             }
             break;
         default:
             std::cout << "No match at main switch(f)! Check it" << std::endl;
+            std::cout << "Opcode: " << std::hex << opcode << std::endl;
             break;
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

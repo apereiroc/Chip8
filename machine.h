@@ -24,7 +24,9 @@
 
 #include <cstdint>
 #include <vector>
+#include <array>
 #include "configs.h"
+#include "screen.h"
 
 class machine {
 public:
@@ -33,17 +35,19 @@ public:
     void test();
 
 private:
-    std::vector<i8>  memory;         // RAM memory
-    std::vector<i16> stack;          // Stack memory
-    std::vector<i8>  v;              // 8-bit registers
-    i16 I;                           // 16-bit register
-    i16 PC;                          // Program Counter
-    i8  SP;                          // Stack Pointer
-    const char* _file;               // Program file to be loaded
+    std::array<i8, MEMSIZE>  memory;    // RAM memory
+    std::array<i16,STACK_SIZE> stack;   // Stack memory
+    std::array<i8, REGISTERS_SIZE> V;   // 8-bit registers
+    i16 I;                              // 16-bit register
+    i16 PC;                             // Program Counter
+    i8  SP;                             // Stack Pointer
+    screen screen;                      // Screen window
+    const char* _file;                  // Program file to be loaded
+    
 
     [[maybe_unused]] void _reset();
     void _loadROM(const char* path_to_file);
-    static void _processInstruction(i16 &opcode);
+    void _processInstruction(const i16& opcode);
 };
 
 
