@@ -3,7 +3,7 @@
 
 int main(const int argc, const char* argv[]) {
 
-    const char* myGame = "PONG";
+    const char* myGame = "/Users/apereiro/Downloads/c8games/PONG";
 
     machine cpu = machine(myGame);
 

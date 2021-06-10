@@ -4,3 +4,5 @@ PONG
 *.o
 .DS_Store
 chip8
+.DS_Store
+*.swp
