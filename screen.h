@@ -19,9 +19,9 @@ public:
     void close();
 
 private:
-    SDL_Window*   _window   = nullptr;  
-    SDL_Renderer* _renderer = nullptr;
-    SDL_Texture*  _texture  = nullptr;
+    SDL_Window*   _window;  
+    SDL_Renderer* _renderer;
+    SDL_Texture*  _texture;
 
     bool _isclosed = false;
 

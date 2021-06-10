@@ -4,10 +4,8 @@
 
 #include "screen.h"
 
-screen::screen()
-{
-
-}
+screen::screen(): _window(nullptr), _renderer(nullptr), _texture(nullptr) 
+{}
 
 screen::~screen()
 {
